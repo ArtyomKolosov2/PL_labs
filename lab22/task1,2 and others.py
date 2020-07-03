@@ -1,0 +1,176 @@
+from random import randint
+
+
+# Выполнение различных действий с матрицами 
+# Version: 1.0
+# Group: 10701219
+# Author: Колосов Артём Александрович
+# Date: 2.28.2020
+
+def output_to_user(msg, s='', e='\n'):
+    print(msg, sep=s, end=e)
+
+
+def get_input(msg):
+    return input(str(msg))
+
+
+def random_float_matrix(i=10, j=10):
+    return [[round(randint(1, j) / randint(1, j * 2), 2) for _ in range(j)] for _ in range(i)]
+
+
+def random_int_matrix(i=10, j=10):
+    return [[randint(1, j * 2) for _ in range(j)] for _ in range(i)]
+
+
+def found_max_element(arr):
+    if not isinstance(arr, list):
+        return None
+    m_i = 0
+    m_j = 0
+    maximum = arr[0][0]
+    for i in range(len(arr)):
+        for j in range(len(arr[i])):
+            if arr[i][j] > maximum:
+                maximum = arr[i][j]
+                m_i = i
+                m_j = j
+
+    return m_i + 1, m_j + 1, maximum
+
+
+def var_to_int(var):
+    if isinstance(var, str) and var.isdigit():
+        var = int(var)
+    else:
+        var = None
+
+    return var
+
+
+def print_matrix_diagonal(arr, splitter=True):
+    if not isinstance(arr, list):
+        return None
+    for i in range(len(arr)):
+        output_to_user("{0}{1}".format('   ' * i, arr[i][i]))
+    if splitter:
+        output_to_user('=' * 30)
+
+
+def print_matrix(arr, splitter=True):
+    if not isinstance(arr, list):
+        return None
+    for i in range(len(arr)):
+        output_to_user(arr[i])
+    if splitter:
+        output_to_user("=" * 30)
+
+
+def move_vector(arr, n):
+    if not isinstance(arr, list):
+        return None
+    print_matrix(arr)
+    for i in range(len(arr)):
+        for j in range(len(arr[i])):
+            arr[i][j] = arr[(i + n) % len(arr[i])][(j + n) % len(arr[i])]
+        output_to_user(arr[i])
+
+
+def transpose_matrix(arr):
+    if not isinstance(arr, list):
+        return None
+    print_matrix(arr)
+    for i in range(len(arr)):
+        for j in range(i, len(arr[i])):
+            arr[i][j], arr[j][i] = arr[j][i], arr[i][j]
+        output_to_user(arr[i])
+
+
+def check_columns_for_even(arr):
+    if not isinstance(arr, list):
+        return None
+    print_matrix(arr)
+    count = 0
+    for i in range(len(arr)):
+        flag = True
+        for j in range(len(arr[i])):
+            if arr[j][i] % 2 != 0:
+                flag = False
+                break
+        if flag:
+            count += 1
+            output_to_user("Column №{0} have only even elements".format(i + 1))
+    if count <= 0:
+        output_to_user("All columns have at least one odd element!")
+
+
+def sort_matrix_diagonal(arr):
+    if not isinstance(arr, list):
+        return None
+    print_matrix_diagonal(arr)
+
+    for i in range(len(arr) - 1):
+        for j in range(len(arr) - 1):
+            if arr[j][j] < arr[j + 1][j + 1]:
+                arr[j][j], arr[j + 1][j + 1] = arr[j + 1][j + 1], arr[j][j]
+
+    print_matrix_diagonal(arr, False)
+
+
+def main():
+    arr = []
+    while True:
+        command = input("1 - New Matrix\n"
+                        "2 - Start\n"
+                        "0 - Exit\n")
+        if command == '1':
+            n = var_to_int(get_input("Input amount of rows and numbers: "))
+
+            if n:
+                command = get_input("Choose Matrix Type:\n"
+                                    "1 - Integer\n"
+                                    "2 - Float\n")
+                if command == '1':
+                    arr = random_int_matrix(n, n)
+                elif command == '2':
+                    arr = random_float_matrix(n, n)
+                else:
+                    arr = random_int_matrix(n, n)
+            else:
+                output_to_user("Error: invalid input")
+
+        elif command == '2':
+            if isinstance(arr, list) and arr is not []:
+                command = get_input("1 - Move Vector\n"
+                                    "2 - Transpose Matrix\n"
+                                    "3 - Sort the diagonal of the matrix\n"
+                                    "4 - Find the maximum element and its position\n"
+                                    "5 - Check the columns for the even of its elements\n"
+                                    "6 - Print Matrix\n"
+                                    "7 - Exit\n")
+                if command == '1':
+                    n = var_to_int(get_input("Input n:"))
+                    move_vector(arr, 1)
+                elif command == '2':
+                    transpose_matrix(arr)
+                elif command == '3':
+                    sort_matrix_diagonal(arr)
+                elif command == '4':
+                    print_matrix(arr)
+                    new_arr = found_max_element(arr)
+                    output_to_user("{0} - Row\n"
+                                   "{1} - Column\n"
+                                   "{2} - Max element of\n".format(*new_arr))
+                elif command == '5':
+                    check_columns_for_even(arr)
+                elif command == '6':
+                    print_matrix(arr, splitter='=')
+                elif command == '7':
+                    break
+
+        elif command == '0':
+            break
+
+
+if __name__ == "__main__":
+    main()

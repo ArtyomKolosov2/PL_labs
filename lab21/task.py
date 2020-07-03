@@ -1,0 +1,95 @@
+from random import randint
+
+
+# Программа реализует несколько алгоритмов сортировки
+#
+# Version: 1.0
+# Group: 10701219
+# Author: Колосов Артём Александрович
+# Date: 2.28.2020
+
+
+def get_input(msg=""):
+    return input(str(msg))
+
+
+def output_to_user(msg="", s="", e="\n"):
+    print(msg, sep=s, end=e)
+
+
+def random_arr(n, start=1, stop=100):
+    return [round(randint(start, stop) / randint(start, round(stop / 10)), 2) for i in range(n)]
+
+
+def bubble_sort(arr):
+    if not isinstance(arr, list):
+        return None
+    for i in range(len(arr)):
+        for j in range(len(arr) - 1):
+            if arr[j] > arr[j + 1]:
+                arr[j + 1], arr[j] = arr[j], arr[j + 1]
+    return arr
+
+
+def selection_sort(arr):
+    if not isinstance(arr, list):
+        return None
+    index = 0
+    for i in range(len(arr) - 1):
+        index = i
+        for j in range(i + 1, len(arr)):
+            if arr[j] < arr[index]:
+                index = j
+        if index != i:
+            arr[i], arr[index] = arr[index], arr[i]
+
+    return arr
+
+
+def insertion_sort(arr):
+    if not isinstance(arr, list):
+        return None
+    for i in range(1, len(arr)):
+        j = i - 1
+        item = arr[i]
+        while j > -1 and arr[j] > item:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = item
+    return arr
+
+
+def main():
+    while True:
+        command = get_input("1 - Use random array\n"
+                            "0 - Stop program\n")
+
+        if command == "1":
+            arr = random_arr(10, start=1, stop=100)
+            command = get_input("1 - bubble sort\n"
+                                "2 - selection sort\n"
+                                "3 - insertion sort\n"
+                                "4 - standard python sort\n"
+                                "0 - stop program\n")
+            output_to_user("Unsorted array - {0}".format(arr))
+            if command == '1':
+                arr = bubble_sort(arr)
+            elif command == '2':
+                arr = selection_sort(arr)
+            elif command == '3':
+                arr = insertion_sort(arr)
+            elif command == '4':
+                arr = sorted(arr)
+            elif arr == '0':
+                break
+            else:
+                output_to_user("Incorrect input!")
+                continue
+            output_to_user("Sorted array - {0}".format(arr))
+
+        elif command == "0":
+            break
+
+
+if __name__ == "__main__":
+    main()

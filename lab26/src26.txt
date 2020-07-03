@@ -1,0 +1,234 @@
+Файл Builder.py
+
+# Класс Builder, утилитный класс для
+# создания списка товаров, а также
+# представления данного списка в
+# строковом варианте для вывода на консоль.
+#
+# Version: 1.0
+# Group: 10701219
+# Author: Колосов Артём Александрович
+# Date: 16.4.2020
+
+import random
+from Goods import Good
+
+
+class Builder:
+    TYPES = ("Computer", "NoteBook", "Laptop",
+             "Phone", "Mouse", "Camera",
+             "MicroPhone", "HeadPhones", "Charge")
+
+    UNDERTYPES = ("Reborn", "Edge", "Plus",
+                  "Extra", "Razr", "Sharp",
+                  "Light", "Image", "GTX",
+                  "Ti", "Gold", "Silver",
+                  "Premium")
+    PRICE_LIST = (100, 500, 50,
+                  10000, 1000, 75,
+                  25, 999, 99, 10, 39)
+    MODEL_START = 1
+    MODEL_END = 5
+
+    def create_goods(self, amount):
+
+        goods_list = []
+        for i in range(amount):
+            name = random.choice(self.TYPES) + " " + random.choice(self.UNDERTYPES) + " " + \
+                   str(random.randrange(self.MODEL_START, self.MODEL_END))
+            price = random.choice(self.PRICE_LIST)
+            goods_list.append(Good(name, price))
+
+        return goods_list
+
+    def get_string_repr(self, goods_list):
+        string = "List Of Goods:\n"
+        for good in goods_list:
+            if isinstance(good, Good):
+                string += good.get_info()
+        return string
+
+    def get_types(self):
+        info = ""
+        for typ in self.TYPES:
+            info += typ + "\n"
+        return info
+
+    def get_undertypes(self):
+        info = ""
+        for undertype in self.UNDERTYPES:
+            info += undertype + "\n"
+        return info
+
+
+Файл Goods.py
+
+# Класс Good, класс-сущность, описывающий существенные характеристики
+# товара
+#
+# Version: 1.0
+# Group: 10701219
+# Author: Колосов Артём Александрович
+# Date: 16.4.2020
+
+class Good:
+    price = 0
+
+    def __init__(self, name, recomended_price):
+        self.name = name
+        self.recomended_price = recomended_price
+        self.price = recomended_price
+
+    def get_info(self):
+        return "{0} - {1}$\n".format(self.name, self.price)
+
+    def get_recomended_price(self):
+        return self.recomended_price
+
+
+Файл main_sc.py
+
+# Главный Файл, который собирает
+# все классы и позволяет с ними работать
+#
+# Version: 1.0
+# Group: 10701219
+# Author: Колосов Артём Александрович
+# Date: 16.4.2020
+
+from Builder import Builder
+from Sell import Seller
+from Worker import Worker
+
+
+def main():
+
+    build = Builder()
+
+    goods_list = build.create_goods(10)
+
+    eldorado = Seller(goods_list, "eldorado")
+
+    worker_vasya = Worker("Вася", salary=100, greedy_level=1.4)
+
+    worker_petya = Worker("Петя", salary=80, greedy_level=1.2)
+
+    eldorado.add_worker(worker_petya)
+    eldorado.add_worker(worker_vasya)
+
+    worker_vasya.sell_one_good(eldorado.goods_list)
+    worker_petya.sell_one_good(eldorado.goods_list)
+    print(eldorado.get_workers_info())
+    
+
+    print(build.get_string_repr(eldorado.goods_list))
+
+    worker_petya.sale_prices(eldorado.goods_list, 0.8)
+
+    worker_vasya.upscale_prices(eldorado.goods_list)
+    print(build.get_string_repr(eldorado.goods_list))
+    input()
+
+if __name__ == "__main__":
+    main()
+
+
+Файл Sell.py
+
+# Класс Seller, который работает с классами Worker, Good
+# Класс Seller, общий класс, в котором описываются и существенные
+# характеристики работника, товара
+# Version: 1.0
+# Group: 10701219
+# Author: Колосов Артём Александрович
+# Date: 16.4.2020
+
+from Goods import Good
+from Worker import Worker
+import random
+
+
+class Seller:
+    worker_list = []
+
+    def __init__(self, goods_list, name):
+        self.goods_list = goods_list
+        self.name = name
+
+    def calculate_prices(self, goods_list):
+        all_price = 0
+        for good in goods_list:
+            if isinstance(good, Good):
+                all_price += good.price
+        return all_price
+
+    def add_worker(self, worker):
+        if isinstance(worker, Worker):
+            self.worker_list.append(worker)
+
+    def get_random_worker(self):
+        return random.choice(self.worker_list)
+
+    def get_info(self):
+        return self.name
+
+    def get_workers_info(self):
+        result = "List Of Workers:\n"
+        for worker in self.worker_list:
+            if isinstance(worker, Worker):
+                result += worker.get_info() + "\n"
+        return result
+
+
+Файл Worker.py
+
+# Класс Worker, функциональный класс, в котором описывается
+# основная бизнес логика приложения
+#
+# Version: 1.0
+# Group: 10701219
+# Author: Колосов Артём Александрович
+# Date: 16.4.2020
+
+from Goods import Good
+import random
+
+
+class Worker:
+    add_to_salary = 0.1
+
+    def __init__(self, name, salary, greedy_level=1, status="Consultant"):
+        self.name = name
+        self.status = status
+        self.salary = salary
+        self.greedy_level = greedy_level
+
+    def upscale_prices(self, goods_list):
+        print(self.status, self.name, ": Black Friday! Prices are increased for {0} %".format(round((self.greedy_level - 1) * 100)))
+        for good in goods_list:
+            if isinstance(good, Good):
+                good.price = round(good.price * self.greedy_level, 2)
+
+    def sale_prices(self, goods_list, sale_coef=0.5):
+        if 0 < sale_coef < 1:
+            print(self.status, self.name, ": Sales!!! Decreasing prices for {0}%".format(round((1-sale_coef) * 100)))
+            for good in goods_list:
+                if isinstance(good, Good):
+                    good.price = round(good.price * sale_coef, 2)
+        else:
+            print("What?")
+
+    def sell_one_good(self, goods_list):
+        delete_index = random.randint(0, len(goods_list)-1)
+        if isinstance(goods_list[delete_index], Good):
+            good = goods_list.pop(delete_index)
+            print(self.get_info(), " sold ", good.get_info())
+            self.salary += (self.add_to_salary * good.price)
+
+    def get_info(self):
+        return "{0} {1}: Greedy level = {2}: Salary {3}".format(self.status,
+                                                                    self.name,
+                                                                    self.greedy_level,
+                                                                    self.salary)
+
+
